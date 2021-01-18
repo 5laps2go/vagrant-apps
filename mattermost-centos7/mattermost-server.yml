@@ -1,0 +1,65 @@
+---
+- name: configure mattermost server with nginx reverse proxy
+  hosts: mattermost_servers
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/c9servers.yml
+    - inventories/dev/vars/c9servers.yml
+
+  tasks:
+    - name: install postgresql packages
+      package:
+        name: postgresql-server
+        state: present
+    - name: "Setup Database Cluster"
+      shell: "postgresql-setup initdb"
+      environment:
+        PGSETUP_INITDB_OPTIONS: "--encoding=UTF-8 --no-locale"
+      args:
+        creates: /var/lib/pgsql/data/postgresql.conf
+    - name: start postgresql service
+      service:
+        name: postgresql.service
+        state: started
+    - name: create the mattermost database
+    - name: create the mattermost user 'mmuser'
+    - name: grant the user access to the mattermost database
+    - name: modify the file pg_hba.conf to allow the mattermost server to communicate with the database
+    - name: download the mattermost server
+      get_url: url=https://releases.mattermost.com/5.30.1/mattermost-5.30.1-linux-amd64.tar.gz dest=/opt/ mode=755
+    - name: install mattermost directory
+      shell: "cd /opt; tar -xvzf *.tar.gz"
+      args:
+        creates: /opt/mattermost
+    - name: create the storage directory for files
+      shell: "mkdir /opt/mattermost/data"
+      args:
+        creates: /opt/mattermost/data
+    - name: set up mattermost user/group
+    - name: change owner of /opt/mattermost to mattermost
+      file: path=/opt/mattermost owner="mattermost" group="mattermost" recurse="yes"
+    - name: change group write mode of /opt/mattermost/data
+      file: path=/opt/mattermost/data mode=g+w recurse="yes"
+    - name: set up the database driver in the mattermost config.json
+      lineinfile:
+        dest: /opt/mattermost/config/config.json
+        state: present
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+      with_items:
+        - regexp: '"DriverName":'
+          line: '"DriverName": "postgres"'
+#       - regexp: '"DataSource":'
+#         line: '"DataSource": "postgres://mmuser:{{ POSTGRE_PASSWD }}@tcp(localhost:5432)/mattermost?sslmode=disable&connect_timeout=10"'
+#       - regexp: '^#?\s*SiteURL'
+#         line: 'postgres'
+    - name: start the mattermost service
+      service:
+        name: mattermost.service
+        state: started
+
+  roles:
+    - role: geerlingguy.repo-epel
+#   - role: nginxinc.nginx
+#   - role: nginxinc.nginx_config

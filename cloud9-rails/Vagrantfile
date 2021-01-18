@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# Clone_from_templates test
+#
+require 'yaml'
+settings = YAML.load_file('config.yml')
+
+Vagrant.configure("2") do |config|
+  config.ssh.forward_agent = true
+
+  config.vm.define settings['node']['hostname'] do |node|
+    node.vm.box = 'esxi_clone/dummy'		# 公開時はbox名に変更(replace '-' to '/' of clone_from_vm name)
+
+    node.vm.hostname = settings['node']['hostname']
+    node.vm.synced_folder('.', '/vagrant', type: 'nfs', disabled: true)
+    node.vm.synced_folder('.', '/vagrantfiles', type: 'rsync', disabled: true)
+  
+    node.vm.provider :vmware_esxi do |esxi|
+      esxi.esxi_hostname = settings['esxi']['hostname']
+      esxi.esxi_username = settings['esxi']['username']
+      esxi.esxi_password = ENV['ESXI_PASSWD']||settings['esxi']['password']
+      esxi.esxi_hostport = settings['esxi']['hostport']
+  
+      esxi.esxi_disk_store = settings['node']['diskstore']
+      esxi.esxi_virtual_network = ["VM Network"]
+      esxi.clone_from_vm = settings['node']['vmclone']
+      esxi.guest_memsize = settings['node']['memory']
+      esxi.guest_numvcpus = settings['node']['cpus']
+      esxi.guest_disk_type = settings['node']['disk_type']
+      esxi.guest_boot_disk_size = settings['node']['disk_size']
+      esxi.local_allow_overwrite = 'True'
+    end
+  end
+end
+

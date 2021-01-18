@@ -1,0 +1,78 @@
+---
+- name: configure jump server to control vagrant/ansible master
+  hosts: jump_servers
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/securities.yml
+
+  tasks:
+    - name: install packages
+      package:
+        name: python,git,gcc,wget,ansible
+        state: present
+    - name: install vagrant rpm
+      yum:
+        name: https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
+        state: present
+    - name: install vagrant plugin vmware-esxi
+      command: vagrant plugin install vagrant-vmware-esxi
+      become: yes
+      become_user: vagrant
+    - name: download ovf tool
+      copy:
+        src: VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
+        dest: /home/vagrant
+        mode: '0755'
+      args:
+        creates: /home/vagrant/VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
+    - name: install ovf tool
+      command: ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle --eulas-agreed --required
+    - name: enable ssh forwarding
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        state: present
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+      with_items:
+        - regexp: '^#?\s*AllowAgentForwarding'
+          line: 'AllowAgentForwarding yes'
+    - name: copy .ssh/config
+      copy:
+        src: ~/.ssh/config
+        dest: ~/.ssh/
+        mode: '0644'
+      become: yes
+      become_user: vagrant
+    - name: insert my ssh public key to .ssh/authorized_keys
+      lineinfile:
+        path: ~/.ssh/authorized_keys
+        line: '{{ github_public_key }}'
+      become: yes
+      become_user: vagrant
+    - name: download ansible-galaxy role requirements
+      copy:
+        src: inventories/common/requirements.yml
+        dest: /home/vagrant
+        mode: '0644'
+      become: yes
+      become_user: vagrant
+    - name: install the ansible roles
+      command: ansible-galaxy install -r requirements.yml
+      become: yes
+      become_user: vagrant
+    - name: prepare vagrant clone templates
+      command: git clone git@github.com:5laps2go/vagrant-clone-templates.git
+      args:
+        creates: ./vagrant-clone-templates
+      become: yes
+      become_user: vagrant
+
+  roles:
+    - role: geerlingguy.repo-epel
+#   - role: linux-system-roles.selinux
+#   - role: linux-system-roles.firewall
+
+# handlers:
+#   - name: restart nginx
+#     service: name=nginx state=restarted

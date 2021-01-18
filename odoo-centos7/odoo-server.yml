@@ -1,0 +1,39 @@
+---
+- name: configure odoo server with nginx reverse proxy
+  hosts: odoo_servers
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/servers.yml
+    - inventories/dev/vars/servers.yml
+
+  tasks:
+    - name: install postgresql packages
+      package:
+        name: postgresql-server
+        state: present
+    - name: "Setup Database Cluster"
+      shell: "postgresql-setup initdb"
+      environment:
+        PGSETUP_INITDB_OPTIONS: "--encoding=UTF-8 --no-locale"
+      args:
+        creates: /var/lib/pgsql/data/postgresql.conf
+    - name: start postgresql service
+      service:
+        name: postgresql.service
+        state: started
+    - name: add odoo repo to yum.repos.d
+      get_url: url=http://nightly.odoo.com/10.0/nightly/rpm/odoo.repo dest=/etc/yum.repos.d/ mode=755
+    - name: install odoo packages
+      package:
+        name: odoo
+        state: present
+    - name: start odoo service
+      service:
+        name: odoo.service
+        state: started
+
+  roles:
+    - role: geerlingguy.repo-epel
+#   - role: nginxinc.nginx
+#   - role: nginxinc.nginx_config

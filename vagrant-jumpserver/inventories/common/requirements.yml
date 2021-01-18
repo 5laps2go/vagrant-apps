@@ -1,0 +1,10 @@
+# Install the role of nginx
+- src: nginxinc.nginx
+- src: nginxinc.nginx_config
+
+# Install the role of selinux
+- src: linux-system-roles.selinux
+- src: linux-system-roles.firewall
+
+# Install the role of extended repo
+- src: geerlingguy.repo-epel
