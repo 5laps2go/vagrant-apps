@@ -5,6 +5,6 @@ esxi:
   hostport: 22                # ESXiのsshログインポート
 
 node:
-  diskstore: "faststore1"     # guest使用するデータストア名
-  hostname:  jumpserver2      # host name
+  diskstore: "datastore1"     # guest使用するデータストア名
+  hostname:  jumpserver       # host name
   vmclone:   bento-centos-7   # vm clone name
