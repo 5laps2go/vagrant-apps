@@ -33,3 +33,16 @@ k8s-node1    Ready    <none>   6m13s   v1.20.1-34+e7db93d188d0d1
 k8s-master   Ready    <none>   10m     v1.20.1-34+e7db93d188d0d1
 k8s-node2    Ready    <none>   6m14s   v1.20.1-34+e7db93d188d0d1
 ```
+
+## kubectl from local machine
+- install kubectl
+```
+$ sudo snap install kubectl --classic # for ubuntu
+$ sudo yum install kubernetes-client  # for centos7
+```
+- configure master information by
+```
+$ mkdir ~/.kube
+$ vagrant ssh k8-master -c "microk8s config" > ~/.kube/config
+```
+- kubectl version --client
