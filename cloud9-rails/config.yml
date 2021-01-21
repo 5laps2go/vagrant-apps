@@ -1,10 +1,10 @@
 esxi:
-  hostname: "192.168.1.31"    # ESXiのIPアドレス
-  username: "root"            # ESXiのログインユーザ
-  password: "prompt:"         # ログインパスワード("prompt:" as manual ops)
-  hostport: 22                # ESXiのsshログインポート
+  hostname: "192.168.1.31"    # ESXi hostname or IP addr
+  username: "root"            # ESXi login user
+  password: "prompt:"         # ESXi login password("prompt:" as manual ops)
+  hostport: 22                # ESXi ssh port
 
 node:
-  diskstore: "faststore1"     # guest使用するデータストア名
+  diskstore: "faststore1"     # datastore for the guest
   hostname:  cloud9-rails     # host name
-  vmclone:   generic-cloud9   # vm clone name
+  vmclone:   generic-cloud9   # vm clone template name

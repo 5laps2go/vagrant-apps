@@ -1,0 +1,44 @@
+---
+- name: configure c9-rails server with nginx reverse proxy
+  hosts: c9rails_servers
+  become: true
+  user: vagrant
+  vars_files:
+#   - inventories/common/vars/c9servers.yml
+    - inventories/dev/vars/c9servers.yml
+  vars:
+    nvm_node_version: 10.23.0
+    nvm_user_name: vagrant
+
+  tasks:
+    - import_tasks: ./tasks/nginx_htpasswd.yml
+    - name: install postgresql-devel for gem pg
+      package:
+        name: postgresql-devel
+        state: present
+    - name: install yarn
+      command: npm install -g yarn
+      become: yes
+      become_user: vagrant
+    - name: git clone rails-tutorial
+      git:
+        repo: https://github.com/5laps2go/rails-tutorial.git
+        dest: ~/rails-tutorial
+      become: yes
+      become_user: vagrant
+
+  roles:
+#   - role: nginxinc.nginx
+    - role: nginxinc.nginx_config
+    - { role: rvm.ruby,
+        tags: ruby,
+        rvm1_rubies: ['ruby-2.6.3'],
+        rvm1_user: 'vagrant'
+      }
+    - role: stephdewit.nvm
+      nvm_node_version: v10.23.0
+      nvm_shell_init_file: ~/.bashrc
+      become: yes
+      become_user: vagrant
+      environment:
+        NVM_DIR: /home/vagrant/.nvm

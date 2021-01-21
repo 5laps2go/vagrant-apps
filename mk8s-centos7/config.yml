@@ -1,0 +1,33 @@
+esxi:
+  hostname: "192.168.1.31"    # ESXiのIPアドレス
+  username: "root"            # ESXiのログインユーザ
+  password: "prompt:"         # ログインパスワード("prompt:" as manual ops)
+  hostport: 22                # ESXiのsshログインポート
+
+  virtualnetworks:            # どのネットワークに接続するかを指定
+#   - "VLAN10"                # プライマリインタフェース
+#   - "VM Network"            # 追加のネットワークインタフェース
+  diskstore: "faststore1"     # 使用するデータストア名
+
+baseos: "esxi_clone/dummy"    # 使用するOSイメージの指定
+cloneos: "bento-centos-7"     # 使用するCloneイメージの指定
+#os_type: "centos-64"          # OSタイプ
+
+
+nodes:
+  - type: "control-plane"
+    hostname: "k8s-master"
+    cpus: 1
+    memory: 2048
+    disk_type: "thin"
+  - type: "worker"
+    hostname: "k8s-node1"
+    cpus: 1
+    memory: 2048
+    disk_type: "thin"
+  - type: "worker"
+    hostname: "k8s-node2"
+    cpus: 1
+    memory: 2048
+    disk_type: "thin"
+

@@ -1,0 +1,69 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# microk8s for centos7
+#
+require 'yaml'
+settings = YAML.load_file('config.yml')
+
+#join_token = SecureRandom.alphanumeric(32)
+
+Vagrant.configure("2") do |config|
+  config.ssh.forward_agent = true
+
+  config.vm.synced_folder('.', '/vagrant', type: 'nfs', disabled: true)
+  config.vm.synced_folder('.', '/Vagrantfiles', type: 'rsync', disabled: true)
+
+  settings['nodes'].each do |node|
+    config.vm.define node['hostname'] do |s|
+      s.vm.box = settings['baseos']		# ノードのベースOSを指定
+      s.vm.hostname = node['hostname']
+      # ネットワークを指定 # pod-network-cidrと重ならないように注意
+      # s.vm.network "private_network", ip: node['ip']
+
+      s.vm.provider :vmware_esxi do |esxi|
+        # 構築先のESXiの情報
+        esxi.esxi_hostname = settings['esxi']['hostname']
+        esxi.esxi_username = settings['esxi']['username']
+        esxi.esxi_password = ENV['ESXI_PASSWD']||settings['esxi']['password']
+        esxi.esxi_hostport = settings['esxi']['hostport']
+        esxi.esxi_virtual_network = settings['esxi']['virtualnetworks']
+        esxi.esxi_disk_store = settings['esxi']['diskstore']
+
+        # 構築するVMの設定
+        esxi.guest_name = node['hostname']
+        esxi.clone_from_vm = settings['cloneos']
+#       esxi.guest_guestos = settings['os_type'] 
+        esxi.guest_username = settings['guest_user']
+        esxi.guest_memsize = node['memory']
+        esxi.guest_numvcpus = node['cpus']
+        esxi.guest_disk_type = node['disk_type']
+        esxi.guest_boot_disk_size = node['disk_size']
+        esxi.local_allow_overwrite = 'True'
+      end
+
+#     s.vm.provision "ansible" do |ansible|
+#       if node['type'] == "control-plane" then
+#         ansible.playbook = "k8s-master.yml"
+#         ansible.groups = {
+#           "k8s_master" => [node['hostname']]
+#         }
+#       else
+#         ansible.playbook = "k8s-worker.yml"
+#         ansible.groups = {
+#           "k8s_workers" => [node['hostname']]
+#         }
+#       end
+#     end
+    end
+  end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "site.yml"
+    ansible.groups = {
+      "k8s_master" => settings['nodes'].select{|n| n['type']=="control-plane"}.map{|n| n['hostname']},
+      "k8s_workers" => settings['nodes'].reject{|n| n['type']=="control-plane"}.map{|n| n['hostname']}
+    }
+  end
+end
+
