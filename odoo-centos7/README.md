@@ -1,12 +1,12 @@
 # odoo-vagrant
 
-Vagrant Setup for Odoo 10 on Ubuntu 16.04
+Vagrant Setup for Odoo on centos7
 
 Dependencies
 ------------
 
 * [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-* [Vagrant](https://www.vagrantup.com)
+* [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
 
 Setup
 -----
@@ -20,25 +20,16 @@ cd odoo-centos7
 vagrant up
 ```
 
-* Login in the virtual machine
-
-```
-vagrant ssh
-```
-
 * To restart odoo service
 
 ```
-sudo service odoo restart
+$ vagrant ssh
+# sudo service odoo restart
 ```
 
-* Open your browser and go http://localhost:8069
-
-Shared folders
---------------
-src/my_addons is mapped to /home/vagrant/my_addons, you can write your modules in this directory
+* Open your browser and go http://localhost:8069 or https://your server
 
 
 pgAdmin 
 -------
-If you want manage the postgresql server from your desktop, you only have to connect to localhost, username and password is 'admin'
+If you want manage the postgresql server from your computer, you only have to connect to the server via "vagrant ssh", username and password is 'admin'

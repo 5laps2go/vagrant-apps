@@ -4,13 +4,13 @@
   become: true
   user: vagrant
   vars_files:
-    - inventories/common/vars/c9servers.yml
-    - inventories/dev/vars/c9servers.yml
+    - inventories/common/vars/servers.yml
+    - inventories/dev/vars/servers.yml
 
   tasks:
     - name: install postgresql packages
       package:
-        name: postgresql-server
+        name: postgresql-server,python-psycopg2,python-ipaddress
         state: present
     - name: "Setup Database Cluster"
       shell: "postgresql-setup initdb"
@@ -23,9 +23,45 @@
         name: postgresql.service
         state: started
     - name: create the mattermost database
+      postgresql_db:
+        name: mattermost
+        encoding: UTF-8
+        lc_collate: en_US.UTF-8
+        lc_ctype: en_US.UTF-8
+        template: template0
+      become: yes
+      become_user: postgres      
     - name: create the mattermost user 'mmuser'
-    - name: grant the user access to the mattermost database
+      postgresql_user:
+        name: mmuser
+        password: "{{ mmuser_passwd }}"
+      become: yes
+      become_user: postgres      
+    - name: Grant the user access to the Mattermost database
+      postgresql_privs:
+        type: database
+        privs: ALL
+        db: mattermost
+        role: mmuser
+      become: yes
+      become_user: postgres      
     - name: modify the file pg_hba.conf to allow the mattermost server to communicate with the database
+      postgresql_pg_hba:
+        dest: /var/lib/pgsql/data/pg_hba.conf
+        contype: '{{ item.contype }}'
+        address: '{{ item.address }}'
+        users: all
+        databases: all
+        method: trust
+        state: present
+      with_items:
+        - { contype: local, address: "samehost" }
+        - { contype: host, address: "127.0.0.1/32" }
+        - { contype: host, address: "::1/128" }
+    - name: restart postgresql service
+      service:
+        name: postgresql.service
+        state: restarted
     - name: download the mattermost server
       get_url: url=https://releases.mattermost.com/5.30.1/mattermost-5.30.1-linux-amd64.tar.gz dest=/opt/ mode=755
     - name: install mattermost directory
@@ -33,10 +69,18 @@
       args:
         creates: /opt/mattermost
     - name: create the storage directory for files
-      shell: "mkdir /opt/mattermost/data"
-      args:
-        creates: /opt/mattermost/data
+      file:
+        path: /opt/mattermost/data
+        state: directory
+    - name: set up mattermost group
+      group:
+        name: mattermost
+        state: present
     - name: set up mattermost user/group
+      user:
+        name: mattermost
+        group: mattermost
+        system: true
     - name: change owner of /opt/mattermost to mattermost
       file: path=/opt/mattermost owner="mattermost" group="mattermost" recurse="yes"
     - name: change group write mode of /opt/mattermost/data
@@ -48,12 +92,16 @@
         regexp: '{{ item.regexp }}'
         line: '{{ item.line }}'
       with_items:
-        - regexp: '"DriverName":'
-          line: '"DriverName": "postgres"'
-#       - regexp: '"DataSource":'
-#         line: '"DataSource": "postgres://mmuser:{{ POSTGRE_PASSWD }}@tcp(localhost:5432)/mattermost?sslmode=disable&connect_timeout=10"'
-#       - regexp: '^#?\s*SiteURL'
-#         line: 'postgres'
+        - regexp: '"DriverName": "po'
+          line: '"DriverName": "postgres",'
+        - regexp: '"DataSource":'
+          line: '"DataSource": "postgres://mmuser:{{ mmuser_passwd }}@localhost:5432/mattermost?sslmode=disable&connect_timeout=10",'
+#       - regexp: '"SiteURL": '
+#         line: '"SiteURL" : "http://<your host name>",'
+    - name: install mattermost systemd unit file
+      template:
+        src: inventories/common/conf/mattermost.service.j2
+        dest: /etc/systemd/system/mattermost.service
     - name: start the mattermost service
       service:
         name: mattermost.service
@@ -61,5 +109,5 @@
 
   roles:
     - role: geerlingguy.repo-epel
-#   - role: nginxinc.nginx
-#   - role: nginxinc.nginx_config
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config

@@ -1,12 +1,12 @@
-# odoo-vagrant
+# mattermost-vagrant
 
-Vagrant Setup for Odoo 10 on Ubuntu 16.04
+Vagrant Setup for mattermost on centos7
 
 Dependencies
 ------------
 
-* [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * [Vagrant](https://www.vagrantup.com)
+* [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
 
 Setup
 -----
@@ -18,29 +18,20 @@ Setup
 * Start virtual machine
 
 ```
-cd odoo-centos7
+cd mattermost-centos7
 vagrant up
 ```
 
-* Login in the virtual machine
+* To restart mattermost service
 
 ```
-vagrant ssh
+$ vagrant ssh
+# sudo service mattermost restart
 ```
 
-* To restart odoo service
-
-```
-sudo service odoo restart
-```
-
-* Open your browser and go http://localhost:8069
-
-Shared folders
---------------
-src/my_addons is mapped to /home/vagrant/my_addons, you can write your modules in this directory
+* Open your browser and go http://server_name:8065 or https://server_name/
 
 
-pgAdmin 
+mattermost installation 
 -------
-If you want manage the postgresql server from your desktop, you only have to connect to localhost, username and password is 'admin'
+If you want to install mattermost manually, please see the [document](https://docs.mattermost.com/install/install-rhel-7.html#)
