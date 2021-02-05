@@ -28,6 +28,14 @@
       package:
         name: odoo
         state: present
+    - name: odoo proxy mode
+      lineinfile:
+        path: /etc/odoo/odoo.conf
+        line: '{{ item.line }}'
+        insertafter: EOF
+      with_items:
+        - line: 'proxy_mode = True'
+        - line: 'xmlrpc_interface = 127.0.0.1'
     - name: start odoo service
       service:
         name: odoo.service
@@ -35,5 +43,5 @@
 
   roles:
     - role: geerlingguy.repo-epel
-#   - role: nginxinc.nginx
-#   - role: nginxinc.nginx_config
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config
