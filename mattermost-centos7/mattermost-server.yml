@@ -92,6 +92,8 @@
         regexp: '{{ item.regexp }}'
         line: '{{ item.line }}'
       with_items:
+        - regexp: '"ListenAddress": ":8065"'
+          line: '"ListenAddress": "127.0.0.1:8065",'
         - regexp: '"DriverName": "po'
           line: '"DriverName": "postgres",'
         - regexp: '"DataSource":'
