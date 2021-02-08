@@ -2,34 +2,30 @@
 
 Vagrant Setup for Odoo on centos7
 
-Dependencies
-------------
+## Dependencies
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+- [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
+- server certificate files by [mkcert](https://github.com/FiloSottile/mkcert)
 
-* [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-* [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
+## Setup
 
-Setup
------
-
-* Clone this repo
-
-* Start virtual machine
+- Clone this repo
+- Start virtual machine
 
 ```
 cd odoo-centos7
 vagrant up
 ```
 
-* To restart odoo service
+## To restart odoo service
 
 ```
 $ vagrant ssh
 # sudo service odoo restart
 ```
 
-* Open your browser and go http://localhost:8069 or https://your server
+## Open your browser and go http://localhost:8069 or https://your server
 
 
-pgAdmin 
--------
+## pgAdmin 
 If you want manage the postgresql server from your computer, you only have to connect to the server via "vagrant ssh", username and password is 'admin'

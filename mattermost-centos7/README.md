@@ -2,36 +2,34 @@
 
 Vagrant Setup for mattermost on centos7
 
-Dependencies
-------------
+## Dependencies
+- [Vagrant](https://www.vagrantup.com)
+- [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
+- server certificate files by [mkcert](https://github.com/FiloSottile/mkcert)
 
-* [Vagrant](https://www.vagrantup.com)
-* [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
+## Setup
 
-Setup
------
+- Download and install Vagrant with esxi
 
-* Download and install Vagrant with esxi
+- Clone this repo
 
-* Clone this repo
-
-* Start virtual machine
+- Start virtual machine
 
 ```
 cd mattermost-centos7
 vagrant up
 ```
 
-* To restart mattermost service
+## To restart mattermost service
 
 ```
 $ vagrant ssh
 # sudo service mattermost restart
 ```
 
-* Open your browser and go http://server_name:8065 or https://server_name/
+## Open your browser and go http://server_name:8065 or https://server_name/
 
 
-mattermost installation 
+## mattermost installation 
 -------
 If you want to install mattermost manually, please see the [document](https://docs.mattermost.com/install/install-rhel-7.html#)
