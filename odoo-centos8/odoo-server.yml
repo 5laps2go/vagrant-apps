@@ -1,0 +1,112 @@
+---
+- name: configure odoo server with nginx reverse proxy
+  hosts: odoo_servers
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/servers.yml
+    - inventories/dev/vars/servers.yml
+  vars:
+    odoo_ver: 14
+
+  tasks:
+    - name: install postgresql packages
+      package:
+        name: postgresql-server
+        state: present
+    - name: "Setup Database Cluster"
+      shell: "postgresql-setup initdb"
+      environment:
+        PGSETUP_INITDB_OPTIONS: "--encoding=UTF-8 --no-locale"
+      args:
+        creates: /var/lib/pgsql/data/postgresql.conf
+    - name: start postgresql service
+      service:
+        name: postgresql.service
+        state: started
+    - name: install odoo required packages
+      package:
+        name: python3,python3-devel,python3-psycopg2,gcc,wget,openldap-devel,libxslt-devel,git
+        state: present
+    - name: install wkhtmltopdf rpm
+      dnf:
+        name: https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
+        disable_gpg_check: True
+        state: present
+    - name: add group odoo
+      group:
+        name: odoo
+        state: present
+    - name: add user odoo
+      user:
+        name: odoo
+        group: odoo
+        home: /opt/odoo
+        state: present
+    - name: create the odoo user on postgres
+      postgresql_user:
+        name: odoo
+        role_attr_flags: SUPERUSER
+      become: yes
+      become_user: postgres      
+    - name: create odoo db
+      postgresql_db:
+        name: odoo
+      become: yes
+      become_user: postgres
+    - name: git clone odoo
+      git:
+        repo: 'https://github.com/odoo/odoo.git'
+        dest: /opt/odoo/odoo-{{ odoo_ver }}
+        version: '{{ odoo_ver }}.0'
+        depth: 1
+      become: yes
+      become_user: odoo
+    - name: create pyenv
+      command: "python3 -m venv /opt/odoo/odoo-{{ odoo_ver }}/pyenv"
+      args:
+        creates: /opt/odoo/odoo-{{ odoo_ver }}/pyenv
+      become: yes
+      become_user: odoo
+    - name: install required libraries
+      command: "pyenv/bin/pip3 install -r requirements.txt"
+      args:
+        chdir: ~/odoo-{{ odoo_ver }}
+        creates: pyenv/lib/python3.6/site-packages/xlrd
+      become: yes
+      become_user: odoo
+    - name: ensure /etc/odoo dir exists
+      file: path=/etc/odoo state=directory
+    - name: ensure /var/log/odoo dir exists
+      file: path=/var/log/odoo owner=odoo group=odoo state=directory
+    - name: odoo.conf
+      copy:
+        remote_src: yes
+        src: /opt/odoo/odoo-{{ odoo_ver }}/debian/odoo.conf
+        dest: /etc/odoo/odoo.conf
+    - name: odoo.service
+      copy:
+        remote_src: yes
+        src: /opt/odoo/odoo-{{ odoo_ver }}/debian/odoo.service
+        dest: /etc/systemd/system/odoo.service
+    - name: odoo.service with pyenv odoo-bin
+      lineinfile:
+        path: /etc/systemd/system/odoo.service
+        regexp: '^ExecStart'
+        line: 'ExecStart=/opt/odoo/odoo-{{ odoo_ver }}/pyenv/bin/python3 /opt/odoo/odoo-{{ odoo_ver }}/odoo-bin -c /etc/odoo/odoo.conf --addons-path /opt/odoo/odoo-{{ odoo_ver }}/addons --logfile /var/log/odoo/odoo-server.log'
+    - name: odoo proxy mode
+      lineinfile:
+        path: /etc/odoo/odoo.conf
+        line: '{{ item.line }}'
+        insertafter: EOF
+      with_items:
+        - line: 'proxy_mode = True'
+        - line: 'http_interface = 127.0.0.1'
+    - name: start odoo service
+      service:
+        name: odoo.service
+        state: started
+
+  roles:
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config

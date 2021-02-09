@@ -6,5 +6,5 @@ esxi:
   diskstore: "faststore1"     # datastore of guest
 
 node:
-  hostname: "odoo-centos7"
+  hostname: "odoo-centos8"
 

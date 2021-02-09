@@ -27,7 +27,7 @@ $ vagrant ssh
 # sudo service mattermost restart
 ```
 
-## Open your browser and go http://server_name:8065 or https://server_name/
+## Open your browser and go https://server_name/
 
 
 ## mattermost installation 

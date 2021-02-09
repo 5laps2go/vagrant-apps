@@ -1,6 +1,7 @@
 # odoo-vagrant
 
-Vagrant Setup for Odoo on centos7
+Vagrant Setup for Odoo on centos8
+- supported version: 12, 13, 14
 
 ## Dependencies
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
@@ -13,7 +14,7 @@ Vagrant Setup for Odoo on centos7
 - Start virtual machine
 
 ```
-cd odoo-centos7
+cd odoo-centos8
 vagrant up
 ```
 
@@ -24,7 +25,7 @@ $ vagrant ssh
 # sudo service odoo restart
 ```
 
-## Open your browser and go http://localhost:8069 or https://your server
+## Open your browser and go https://your server
 
 
 ## pgAdmin 
