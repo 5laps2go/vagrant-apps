@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
   config.ssh.forward_agent = true
 
   config.vm.define settings['node']['hostname'] do |node|
-    node.vm.box = 'esxi_clone/dummy'		# 公開時はbox名に変更(replace '-' to '/' of clone_from_vm name)
+    node.vm.box = settings['vm']['baseos']
 
     node.vm.hostname = settings['node']['hostname']
     node.vm.synced_folder('.', '/vagrant', type: 'nfs', disabled: true)
@@ -22,9 +22,10 @@ Vagrant.configure("2") do |config|
       esxi.esxi_password = ENV['ESXI_PASSWD']||settings['esxi']['password']
       esxi.esxi_hostport = settings['esxi']['hostport']
   
-      esxi.esxi_disk_store = settings['node']['diskstore']
+      esxi.esxi_disk_store = settings['vm']['diskstore']
+      esxi.clone_from_vm = settings['vm']['cloneos']
+
       esxi.esxi_virtual_network = ["VM Network"]
-      esxi.clone_from_vm = settings['node']['vmclone']
       esxi.guest_memsize = settings['node']['memory']
       esxi.guest_numvcpus = settings['node']['cpus']
       esxi.guest_disk_type = settings['node']['disk_type']

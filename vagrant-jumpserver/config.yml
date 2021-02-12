@@ -1,10 +1,13 @@
 esxi:
-  hostname: "192.168.1.31"    # ESXiのIPアドレス
-  username: "root"            # ESXiのログインユーザ
-  password: "prompt:"         # ログインパスワード("prompt:" as manual ops)
-  hostport: 22                # ESXiのsshログインポート
+  hostname: "vmhost.lan"      # ESXi hostname or IP addr
+  username: "root"            # ESXi login user
+  password: "prompt:"         # ESXi login password("prompt:" as manual ops)
+  hostport: 22                # ESXi ssh port
+
+vm:
+  baseos: "esxi_clone/dummy"  # OS image (dummy for esxi clone)
+  cloneos: "bento-centos-7"   # Clone image if you use esxi clone
+  diskstore: "datastore1"     # datastore of guest
 
 node:
-  diskstore: "datastore1"     # guest使用するデータストア名
-  hostname:  jumpserver       # host name
-  vmclone:   bento-centos-7   # vm clone name
+  hostname:  jumpserver2       # host name

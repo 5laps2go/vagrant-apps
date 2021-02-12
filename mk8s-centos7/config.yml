@@ -1,17 +1,18 @@
 esxi:
-  hostname: "192.168.1.31"    # ESXiのIPアドレス
-  username: "root"            # ESXiのログインユーザ
-  password: "prompt:"         # ログインパスワード("prompt:" as manual ops)
-  hostport: 22                # ESXiのsshログインポート
+  hostname: "vmhost.lan"      # ESXi hostname or IP addr
+  username: "root"            # ESXi login user
+  password: "prompt:"         # ESXi login password("prompt:" as manual ops)
+  hostport: 22                # ESXi ssh port
 
-  virtualnetworks:            # どのネットワークに接続するかを指定
-#   - "VLAN10"                # プライマリインタフェース
-#   - "VM Network"            # 追加のネットワークインタフェース
-  diskstore: "faststore1"     # 使用するデータストア名
+  virtualnetworks:            # network configuration
+#   - "VLAN10"                # primary network interface
+#   - "VM Network"            # additional network interface
 
-baseos: "esxi_clone/dummy"    # 使用するOSイメージの指定
-cloneos: "bento-centos-7"     # 使用するCloneイメージの指定
-#os_type: "centos-64"          # OSタイプ
+vm:
+  baseos: "esxi_clone/dummy"  # OS image (dummy for esxi clone)
+  cloneos: "bento-centos-7"   # Clone image if you use esxi clone
+  #os_type: "centos-64"       # OS type
+  diskstore: "faststore1"     # datastore of guest
 
 
 nodes:
