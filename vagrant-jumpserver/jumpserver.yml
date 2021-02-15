@@ -5,6 +5,8 @@
   user: vagrant
   vars_files:
     - inventories/common/vars/securities.yml
+  vars:
+    github_repo: 5laps2go
 
   tasks:
     - name: set global LC_LOCALE to UTF-8
@@ -40,18 +42,17 @@
         - regexp: '^#?\s*AllowAgentForwarding'
           line: 'AllowAgentForwarding yes'
     - name: copy .ssh/config
-      copy:
-        src: ~/.ssh/config
-        dest: ~/.ssh/
+      template:
+        src: inventories/common/conf/ssh_config.j2
+        dest: ~/.ssh/config
         mode: '0644'
       become: yes
       become_user: vagrant
-    - name: insert my ssh public key to .ssh/authorized_keys
-      lineinfile:
-        path: ~/.ssh/authorized_keys
-        line: '{{ github_public_key }}'
-      become: yes
-      become_user: vagrant
+    - name: add github ssh public key to vagrant user
+      authorized_key:
+        user: vagrant
+        state: present
+        key: https://github.com/{{ github_repo }}.keys
     - name: download ansible-galaxy role requirements
       copy:
         src: inventories/common/requirements.yml
