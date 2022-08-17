@@ -40,20 +40,6 @@ Vagrant.configure("2") do |config|
         esxi.guest_boot_disk_size = node['disk_size']
         esxi.local_allow_overwrite = 'True'
       end
-
-#     s.vm.provision "ansible" do |ansible|
-#       if node['type'] == "control-plane" then
-#         ansible.playbook = "k8s-master.yml"
-#         ansible.groups = {
-#           "k8s_master" => [node['hostname']]
-#         }
-#       else
-#         ansible.playbook = "k8s-worker.yml"
-#         ansible.groups = {
-#           "k8s_workers" => [node['hostname']]
-#         }
-#       end
-#     end
     end
   end
 

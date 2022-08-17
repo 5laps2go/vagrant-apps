@@ -34,6 +34,12 @@ k8s-master   Ready    <none>   10m     v1.20.1-34+e7db93d188d0d1
 k8s-node2    Ready    <none>   6m14s   v1.20.1-34+e7db93d188d0d1
 ```
 
+## helm
+```
+$ microk8s enable helm3
+$ alias helm="microk8s helm3"
+```
+
 ## kubectl from local machine
 - install kubectl
 ```
