@@ -37,7 +37,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "c9servers.yml"
     ansible.groups = {
-      "c9rails_servers" => [settings['node']['hostname']]
+      "c9python_servers" => [settings['node']['hostname']]
     }
   end
 end

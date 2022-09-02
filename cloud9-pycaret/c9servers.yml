@@ -1,6 +1,6 @@
 ---
 - name: configure c9-rails server with nginx reverse proxy
-  hosts: c9rails_servers
+  hosts: c9python_servers
   become: true
   user: vagrant
   vars_files:
