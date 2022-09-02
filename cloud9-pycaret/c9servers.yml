@@ -24,22 +24,43 @@
       template:
         src: inventories/common/conf/jupyter.service.j2
         dest: /etc/systemd/system/jupyter.service
+    - name: ensures .jupyter dir exists
+      file: path=/home/vagrant/.jupyter state=directory
+      become: yes
+      become_user: vagrant
+    - name: set jupyter notebook customize json
+      template:
+        src: inventories/dev/conf/jupyter_server_config.json
+        dest: /home/vagrant/.jupyter/jupyter_server_config.json
+      become: yes
+      become_user: vagrant
+
     - name: change python interpreter
       set_fact: ansible_python_interpreter=/home/vagrant/.pyenv/shims/python
     - name: upgrade pip, force upgrade
       pip:
         name: pip
         state: latest
-    - name: install pycaret
+      become: yes
+      become_user: vagrant
+    - name: install pycaret and jupyterlab
       pip:
-        name: pycaret
+        name: pycaret, jupyterlab, pandavro
         executable: pip3
+      become: yes
+      become_user: vagrant
     - name: start the jupyter service
       systemd:
         name: jupyter.service
         state: started
         daemon_reload: yes
         enabled: yes
+
+  pre_tasks:
+    - name: install packages for python
+      package:
+        name: xz-devel
+        state: present
 
   roles:
 #   - role: nginxinc.nginx
