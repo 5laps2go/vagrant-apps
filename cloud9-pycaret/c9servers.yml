@@ -43,9 +43,9 @@
         state: latest
       become: yes
       become_user: vagrant
-    - name: install pycaret and jupyterlab
+    - name: install pycaret and jupyterlab (pandavro for avro, m2cgen for pycaret model to python)
       pip:
-        name: pycaret, jupyterlab, pandavro
+        name: pycaret, jupyterlab, pandavro, m2cgen
         executable: pip3
       become: yes
       become_user: vagrant
