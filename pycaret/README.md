@@ -7,6 +7,10 @@
 
 ## Setup
 - nginx reverse proxy for url routing and basic authentication
+- enable GPU by specifying the following esxi vmx values in Vagrantfile. note that you need to extract those values from the vmx file of any GPU enabled VM.
+```
+     esxi.guest_custom_vmx_settings = [['pciPassthru0.present','TRUE'], ['pciPassthru0.pciSlotNumber','192'], ['pciPassthru0.id','00000:001:00.0'], ['pciPassthru0.deviceId','0x1f82'], ['pciPassthru0.vendorId','0x10de'], ['pciPassthru0.systemId','61d3b279-6cb1-ccff-5244-001517ddf3aa'], ['sched.mem.min',settings['node']['memory']]]
+```
 
 ## Open your browser and go following url
 - https://your node/           for jupyter lab

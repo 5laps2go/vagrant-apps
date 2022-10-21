@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
       esxi.guest_boot_disk_size = settings['node']['disk_size']
       esxi.local_allow_overwrite = 'True'
 
-      esxi.guest_custom_vmx_settings = [['pciPassthru0.present','TRUE'], ['pciPassthru0.pciSlotNumber','192'], ['pciPassthru0.id','00000:001:00.0'], ['pciPassthru0.deviceId','0x1f82'], ['pciPassthru0.vendorId','0x10de'], ['pciPassthru0.systemId','61d3b279-6cb1-ccff-5244-001517ddf3aa'], ['sched.mem.min','4096']]
+      esxi.guest_custom_vmx_settings = [['pciPassthru0.present','TRUE'], ['pciPassthru0.pciSlotNumber','192'], ['pciPassthru0.id','00000:001:00.0'], ['pciPassthru0.deviceId','0x1f82'], ['pciPassthru0.vendorId','0x10de'], ['pciPassthru0.systemId','61d3b279-6cb1-ccff-5244-001517ddf3aa'], ['sched.mem.min',settings['node']['memory']]]
 # ['sched.mem.min','4096'], ['sched.mem.minSize',settings['node']['memory']], ['sched.mem.pin','TRUE'], ['sched.mem.shares','normal']
     end
   end
