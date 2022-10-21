@@ -1,0 +1,17 @@
+[Unit]
+Description=mlflow ui web
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/home/vagrant/.pyenv/shims/mlflow ui 
+#PIDFile=/var/run/jupyter-notebook.pid
+TimeoutStartSec=3600
+LimitNOFILE=49152
+WorkingDirectory=/home/vagrant
+User=vagrant
+Group=vagrant
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

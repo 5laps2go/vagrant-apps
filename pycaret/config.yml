@@ -1,0 +1,17 @@
+esxi:
+  hostname: "vmhost.lan"      # ESXi hostname or IP addr
+  username: "root"            # ESXi login user
+  password: "prompt:"         # ESXi login password("prompt:" as manual ops)
+  hostport: 22                # ESXi ssh port
+
+vm:
+  baseos: "esxi_clone/dummy"  # OS image (dummy for esxi clone)
+  cloneos: "bento-centos-7"   # Clone image if you use esxi clone
+  diskstore: "faststore1"     # datastore of guest
+
+node:
+  hostname: "pycaret"
+  cpus: 2
+  memory: 4096
+  disk_type: "thin"
+

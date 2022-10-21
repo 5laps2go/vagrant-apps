@@ -1,0 +1,84 @@
+---
+- name: configure pycaret jupyter server with nginx reverse proxy
+  hosts: pycaret_server
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/pycaret.yml
+    - inventories/dev/vars/pycaret.yml
+  vars:
+    python3_version: 3.8.13
+
+  tasks:
+    - name: install rpm packages
+      package:
+        name: git,nginx
+        state: present
+    - import_tasks: ./tasks/nginx_htpasswd.yml
+    - name: install jupyter notebook systemd unit file
+      template:
+        src: inventories/common/conf/jupyter.service.j2
+        dest: /etc/systemd/system/jupyter.service
+    - name: install mlflow systemd unit file
+      template:
+        src: inventories/common/conf/mlflow.service.j2
+        dest: /etc/systemd/system/mlflow.service
+    - name: ensures .jupyter dir exists
+      file: path=/home/vagrant/.jupyter state=directory
+      become: yes
+      become_user: vagrant
+    - name: set jupyter notebook customize json
+      template:
+        src: inventories/dev/conf/jupyter_server_config.json
+        dest: /home/vagrant/.jupyter/jupyter_server_config.json
+      become: yes
+      become_user: vagrant
+
+    - name: change python interpreter
+      set_fact: ansible_python_interpreter=/home/vagrant/.pyenv/shims/python
+    - name: upgrade pip, force upgrade
+      pip:
+        name: pip
+        state: latest
+      become: yes
+      become_user: vagrant
+    - name: install pycaret and jupyterlab (pandavro for avro, m2cgen for pycaret model to python)
+      pip:
+        name: pycaret, mlflow==1.26.1, jupyterlab, pandavro, m2cgen
+        executable: pip3
+      become: yes
+      become_user: vagrant
+    - name: start the jupyter service
+      systemd:
+        name: jupyter.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+    - name: start the mlflow service
+      systemd:
+        name: mlflow.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+  pre_tasks:
+    - name: install packages for nginxinc.nginx
+      package:
+        name: patch,pcre2
+        state: present
+    - name: install packages for python
+      package:
+        name: xz-devel
+        state: present
+
+  roles:
+    - role: geerlingguy.repo-epel
+    - role: nginxinc.nginx
+    - role: nginxinc.nginx_config
+    - role: avanov.pyenv
+      pyenv_path: /home/vagrant/.pyenv
+      pyenv_owner: vagrant
+      pyenv_global: "{{ python3_version }}"
+      pyenv_python_versions: ["{{ python3_version }}"]
+      pyenv_virtualenvs: [{ venv_name: "latest", py_version: "{{ python3_version }}" }]
+
