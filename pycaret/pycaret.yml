@@ -44,7 +44,7 @@
       become_user: vagrant
     - name: install pycaret and jupyterlab (pandavro for avro, m2cgen for pycaret model to python)
       pip:
-        name: pycaret, mlflow==1.26.1, jupyterlab, pandavro, m2cgen
+        name: pycaret, mlflow==1.26.1, jupyterlab, pandavro, japanize_matplotlib, m2cgen
         executable: pip3
       become: yes
       become_user: vagrant

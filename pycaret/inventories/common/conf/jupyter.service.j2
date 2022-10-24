@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=/home/vagrant/.pyenv/shims/jupyter lab --port=3000 --no-browser --NotebookApp.allow_origin='https://cloud9-pycaret'
+ExecStart=/home/vagrant/.pyenv/shims/jupyter lab --port=3000 --no-browser --NotebookApp.allow_origin='https://pycaret'
 #PIDFile=/var/run/jupyter-notebook.pid
 TimeoutStartSec=3600
 LimitNOFILE=49152
