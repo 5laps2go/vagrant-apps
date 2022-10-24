@@ -24,6 +24,10 @@
       template:
         src: inventories/common/conf/jupyter.service.j2
         dest: /etc/systemd/system/jupyter.service
+    - name: install mlflow systemd unit file
+      template:
+        src: inventories/common/conf/mlflow.service.j2
+        dest: /etc/systemd/system/mlflow.service
     - name: ensures .jupyter dir exists
       file: path=/home/vagrant/.jupyter state=directory
       become: yes
@@ -45,13 +49,13 @@
       become_user: vagrant
     - name: install pycaret and jupyterlab (pandavro for avro, m2cgen for pycaret model to python)
       pip:
-        name: pycaret, jupyterlab, pandavro, m2cgen
+        name: pycaret, mlflow==1.26.1, jupyterlab, pandavro, m2cgen
         executable: pip3
       become: yes
       become_user: vagrant
     - name: start the jupyter service
       systemd:
-        name: jupyter.service
+        name: jupyter.service, mlflow.service
         state: started
         daemon_reload: yes
         enabled: yes
