@@ -45,6 +45,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "site.yml"
+#   ansible.verbose = true
     ansible.groups = {
       "k8s_master" => settings['nodes'].select{|n| n['type']=="control-plane"}.map{|n| n['hostname']},
       "k8s_workers" => settings['nodes'].reject{|n| n['type']=="control-plane"}.map{|n| n['hostname']}

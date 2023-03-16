@@ -17,15 +17,13 @@
   snap:
     name: microk8s
     classic: yes
+    channel: 1.24/stable
+    # 1.25 and 1.26 are not supported by centos7???
 - name: adding existing user vagrant to group microk8s
   user:
     name: vagrant
     groups: microk8s
     append: yes
-#- name: wait for microk8s services
-#  command: /var/lib/snapd/snap/bin/microk8s.status --wait-ready
-#- name: enable dns dashboard registry
-#  command: /var/lib/snapd/snap/bin/microk8s.enable dns dashboard registry
 - name: alias kubectl
   command: snap alias microk8s.kubectl kubectl
 - name: alias helm

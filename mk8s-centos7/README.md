@@ -1,4 +1,4 @@
-# microk8s provision
+# microk8s and rancher provision
 
 ## microk8s configuration
 The configuration is defined by config.yml as nodes structure as follows;
@@ -39,6 +39,10 @@ k8s-node2    Ready    <none>   6m14s   v1.20.1-34+e7db93d188d0d1
 $ microk8s enable helm3
 $ alias helm="microk8s helm3"
 ```
+
+## rancher
+- see bootstrap password by sh bootstrap.sh
+- initial login from https://k8s-master.lan with the password
 
 ## kubectl from local machine
 - install kubectl

@@ -18,18 +18,18 @@ vm:
 nodes:
   - type: "control-plane"
     hostname: "k8s-master"
-    cpus: 2
-    memory: 2048
+    cpus: 4
+    memory: 4096
     disk_type: "thin"
   - type: "worker"
     hostname: "k8s-node1"
-    cpus: 2
-    memory: 2048
+    cpus: 4
+    memory: 4096
     disk_type: "thin"
   - type: "worker"
     hostname: "k8s-node2"
-    cpus: 2
-    memory: 2048
+    cpus: 4
+    memory: 4096
     disk_type: "thin"
 #  - type: "worker"
 #    hostname: "k8s-node3"

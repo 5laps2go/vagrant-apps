@@ -8,9 +8,46 @@
     - inventories/dev/vars/servers.yml
 
   tasks:
-    - import_tasks: ./tasks/microk8s.yml
+    - name: import microk8s snap preparation tasks
+      import_tasks: ./tasks/microk8s.yml
+    - name: wait for microk8s services
+      command: /var/lib/snapd/snap/bin/microk8s.status --wait-ready
+    - name: enable dns
+      command: /var/lib/snapd/snap/bin/microk8s.enable dns registry metallb:192.168.1.210-192.168.1.220
     - name: prepare cluster acceptance for 600 seconds
       command: /var/lib/snapd/snap/bin/microk8s add-node -l 600 -t {{ k8s_join_token }}
+
+    # rancher installation
+    - name: enable allow-priviledged
+      lineinfile:
+        path: /var/snap/microk8s/current/args/kube-apiserver
+        line: '--allow-privileged=true'
+        insertafter: EOF
+    - name: restart snap.microk8s.daemon-apiserver.serivce
+      systemd:
+        name: snap.microk8s.daemon-apiserver.service
+        state: restarted
+        enabled: yes
+    - name: enable helm3 ingress
+      command: /var/lib/snapd/snap/bin/microk8s.enable helm3 ingress
+    # install cert-manager for rancher
+    - name: repo jetstack
+      command: /var/lib/snapd/snap/bin/microk8s.helm3 repo add jetstack https://charts.jetstack.io
+    - name: update repo
+      command: /var/lib/snapd/snap/bin/microk8s helm3 repo update
+    - name: create namespace cert-manager
+      command: /var/lib/snapd/snap/bin/microk8s kubectl create namespace cert-manager
+    - name: intall cert-manager
+      command: /var/lib/snapd/snap/bin/microk8s.helm3 install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.7.1 --set installCRDs=true
+    # install rancher
+    - name: add repo
+      command:  /var/lib/snapd/snap/bin/microk8s helm3 repo add rancher-stable https://releases.rancher.com/server-charts/stable
+    - name: update repo
+      command: /var/lib/snapd/snap/bin/microk8s helm3 repo update
+    - name: create namespace cattle-system
+      command: /var/lib/snapd/snap/bin/microk8s kubectl create namespace cattle-system
+    - name: install rancher
+      command: /var/lib/snapd/snap/bin/microk8s helm3 install rancher rancher-stable/rancher --namespace cattle-system --set hostname=k8s-master.lan --set replicas=3
 
   roles:
     - role: geerlingguy.repo-epel
