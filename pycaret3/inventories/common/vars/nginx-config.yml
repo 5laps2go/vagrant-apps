@@ -1,0 +1,31 @@
+#selinux_booleans:
+#   - { name: 'httpd_can_network_connect', state: 'yes', persistent: 'yes' }
+#firewall:
+#   - { service: 'https', state: 'enabled' }
+
+nginx_config_selinux: true
+nginx_config_selinux_enforcing: true
+nginx_config_selinux_tcp_ports:
+  - 80
+  - 443
+
+#nginx_state: present
+#nginx_config_debug_output: true
+
+nginx_config_cleanup: false
+nginx_config_cleanup_files:
+  - /etc/nginx/conf.d/default.conf
+
+# Enable creating dynamic templated NGINX configuration files.
+nginx_config_main_template_enable: true
+
+nginx_config_upload_enable: true
+nginx_config_upload:
+  - { src: 'inventories/common/conf/http/jupyter_proxy.conf', dest: '/etc/nginx/conf.d/' }
+
+nginx_config_upload_ssl_enable: true
+nginx_config_upload_ssl_crt:
+  - { src: 'inventories/dev/conf/http/ssl/server.crt', dest: '/etc/pki/nginx/' }
+nginx_config_upload_ssl_key:
+  - { src: inventories/dev/conf/http/ssl/server.key, dest: /etc/pki/nginx/private/ }
+

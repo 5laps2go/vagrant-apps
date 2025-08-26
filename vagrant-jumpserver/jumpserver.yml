@@ -9,29 +9,49 @@
     github_repo: 5laps2go
 
   tasks:
+    - name: install EPEL
+      package:
+        name: epel-release
+        state: present
     - name: set global LC_LOCALE to UTF-8
       lineinfile:
         path: /etc/environment
         line: 'LC_ALL=en_US.utf-8'
     - name: install packages
       package:
-        name: python,git,gcc,wget,ansible
+        name: python,git,gcc,wget,ansible,unzip
         state: present
-    - name: install vagrant rpm
+
+    - name: setup vagrant yum repository
+      get_url:
+        url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+        dest: /etc/yum.repos.d/hashicorp.repo
+        mode: '0644'
+    - name: install vagrant
       yum:
-        name: https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
+        name: vagrant
         state: present
     - name: install vagrant plugin vmware-esxi
-      command: vagrant plugin install vagrant-vmware-esxi
+      ansible.builtin.command: vagrant plugin install vagrant-vmware-esxi
       become: yes
       become_user: vagrant
-    - name: download ovf tool
-      copy:
-        src: VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle
-        dest: /home/vagrant
-        mode: '0755'
-    - name: install ovf tool
-      command: ./VMware-ovftool-4.4.1-16812187-lin.x86_64.bundle --eulas-agreed --required
+      args:
+        creates: /home/vagrant/.vagrant.d/gems/3.3.8/gems/vagrant-vmware-esxi-2.5.5
+
+    - name: Unarchive VMware-ovftool
+      unarchive:
+        src:  VMware-ovftool-5.0.0-24781994-lin.x86_64.zip
+        dest: /usr/lib
+    - name: ovftool command
+      ansible.builtin.file:
+        src: /usr/lib/ovftool/ovftool
+        dest: /usr/bin/ovftool
+        state: link
+    - name: install libnsl package for ovftool
+      package:
+        name: libnsl
+        state: present
+
     - name: enable ssh forwarding
       lineinfile:
         dest: /etc/ssh/sshd_config
@@ -64,19 +84,35 @@
       command: ansible-galaxy install -r requirements.yml
       become: yes
       become_user: vagrant
+
     - name: prepare vagrant clone templates
       command: git clone git@github.com:5laps2go/vagrant-clone-templates.git
       args:
         creates: ./vagrant-clone-templates
       become: yes
       become_user: vagrant
+    - name: prepare ESXIPASSWORD variable
+      ansible.builtin.file:
+        path: /home/vagrant/.bashrc.d
+        state: directory
+        owner: vagrant
+        group: vagrant
+    - name: .vault_pass file
+      ansible.builtin.copy:
+        src: inventories/dev/conf/esxipassword.sh
+        dest: /home/vagrant/.bashrc.d/esxipassword.sh
+        owner: vagrant
+        group: vagrant
+        follow: no
     - name: install vagrant dummy_box
       command: vagrant box add --name esxi_clone/dummy ~/vagrant-clone-templates/dummybox/dummy.box
       become: yes
       become_user: vagrant
+      args:
+        creates: /home/vagrant/vagrant-clone-templates/dummybox/dummy.box
 
-  roles:
-    - role: geerlingguy.repo-epel
+#  roles:
+#    - role: geerlingguy.repo-epel
 #   - role: linux-system-roles.selinux
 #   - role: linux-system-roles.firewall
 

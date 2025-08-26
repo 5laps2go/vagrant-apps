@@ -6,8 +6,8 @@ esxi:
 
 vm:
   baseos: "esxi_clone/dummy"  # OS image (dummy for esxi clone)
-  cloneos: "generic-alma9"    # Clone image if you use esxi clone
-  diskstore: "datastore1"     # datastore of guest
+  cloneos: "generic-cloud9"   # Clone image if you use esxi clone
+  diskstore: "faststore1"     # datastore of guest
 
 node:
-  hostname:  jumpserver2       # host name
+  hostname:  cloud9-python3   # host name
