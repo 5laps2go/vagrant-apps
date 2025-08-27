@@ -1,0 +1,17 @@
+[Unit]
+Description=Jupyter notebook
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/home/vagrant/.pyenv/shims/jupyter notebook --port=3000 --no-browser --NotebookApp.allow_origin='https://cloud9-python3'
+#PIDFile=/var/run/jupyter-notebook.pid
+TimeoutStartSec=3600
+LimitNOFILE=49152
+WorkingDirectory=/home/vagrant
+User=vagrant
+Group=vagrant
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

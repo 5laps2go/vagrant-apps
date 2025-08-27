@@ -6,5 +6,3 @@
 - src: linux-system-roles.selinux
 - src: linux-system-roles.firewall
 
-# Install the role of extended repo
-- src: geerlingguy.repo-epel

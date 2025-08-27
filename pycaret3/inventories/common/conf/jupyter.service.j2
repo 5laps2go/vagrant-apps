@@ -1,0 +1,17 @@
+[Unit]
+Description=Jupyter notebook
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "/home/vagrant/.pyenv/shims/jupyter lab --ServerApp.port=3000 --no-browser --ServerApp.allow_origin='*'"
+PIDFile=/run/jupyter.pid
+RestartSec=3600
+LimitNOFILE=49152
+WorkingDirectory=/home/vagrant
+User=vagrant
+Group=vagrant
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

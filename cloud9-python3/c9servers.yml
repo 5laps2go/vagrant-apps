@@ -1,0 +1,53 @@
+---
+- name: configure c9-rails server with nginx reverse proxy
+  hosts: c9rails_servers
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/dev/vars/c9servers.yml
+  vars:
+    python3_version: 3.8.13
+
+  tasks:
+    - import_tasks: ./tasks/nginx_htpasswd.yml
+#   - name: install postgresql-devel for gem pg
+#     package:
+#       name: postgresql-devel
+#       state: present
+#   - name: git clone ixbrl-parse
+#     git:
+#       repo: https://github.com/drkane/ixbrl-parse.git
+#       dest: ~/ixbrl-parse
+#     become: yes
+#     become_user: vagrant
+    - name: install jupyter notebook systemd unit file
+      template:
+        src: inventories/common/conf/jupyter.service.j2
+        dest: /etc/systemd/system/jupyter.service
+    - name: change python interpreter
+      set_fact: ansible_python_interpreter=/home/vagrant/.pyenv/shims/python
+    - name: upgrade pip, force upgrade
+      pip:
+        name: pip
+        state: latest
+    - name: install pycaret
+      pip:
+        name: pycaret
+        executable: pip3
+    - name: start the jupyter service
+      systemd:
+        name: jupyter.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+  roles:
+#   - role: nginxinc.nginx
+    - role: nginxinc.nginx_config
+    - role: avanov.pyenv
+      pyenv_path: /home/vagrant/.pyenv
+      pyenv_owner: vagrant
+      pyenv_global: "{{ python3_version }}"
+      pyenv_python_versions: ["{{ python3_version }}"]
+      pyenv_virtualenvs: [{ venv_name: "latest", py_version: "{{ python3_version }}" }]
+
