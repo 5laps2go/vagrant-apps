@@ -1,16 +1,14 @@
-# jumpserver preparation for vagrant for esxi clone templates
+# code develop environment preparation for vagrant for esxi clone templates
 - This is the environment to build esxi clone templates.
 
 Dependencies
 ------------
 
-* [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+* [Vagrant Box](https://portal.cloud.hashicorp.com/vagrant/discover)
 * [Vagrant](https://www.vagrantup.com)
 
 Setup
 -----
-- ESXI_PASSWD preparation
- create the file ~/.vault_pass with the mode u+r only and set the esxi user password.
 - authorized_keys preparation
  You need to hold the public key which is also registered in github.com.
 ```

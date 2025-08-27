@@ -1,0 +1,6 @@
+selinux_booleans:
+   - { name: 'httpd_can_network_connect', state: 'yes', persistent: 'yes' }
+firewall:
+   - { service: 'https', state: 'enabled' }
+
+

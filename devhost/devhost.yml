@@ -1,0 +1,53 @@
+---
+- name: configure devhost server to prepare code development environment
+  hosts: devhost_server
+  become: true
+  user: vagrant
+  vars_files:
+    - inventories/common/vars/securities.yml
+  vars:
+    github_repo: 5laps2go
+
+  tasks:
+    - name: enable ssh forwarding
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        state: present
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+      with_items:
+        - regexp: '^#?\s*AllowAgentForwarding'
+          line: 'AllowAgentForwarding yes'
+    - name: copy .ssh/config
+      template:
+        src: inventories/common/conf/ssh_config.j2
+        dest: ~/.ssh/config
+        mode: '0644'
+      become: yes
+      become_user: vagrant
+    - name: add github ssh public key to vagrant user
+      authorized_key:
+        user: vagrant
+        state: present
+        key: https://github.com/{{ github_repo }}.keys
+    - name: install anyenv by git clone
+      git:
+        repo: 'https://github.com/anyenv/anyenv'
+        dest: /home/vagrant/.anyenv
+      become: yes
+      become_user: vagrant
+    - name: edit .bashrc
+      lineinfile:
+        path: /home/vagrant/.bashrc
+        line: '{{ item.line }}'
+        insertafter: EOF
+      with_items:
+        - line: 'export PATH="$HOME/.anyenv/bin:$PATH"'
+        - line: 'eval "$(anyenv init -)"'
+
+  pre_tasks:
+    - name: install packages for code deveopment
+      package:
+        name: xz-devel,git
+        state: present
+
