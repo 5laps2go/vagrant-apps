@@ -10,4 +10,7 @@ vm:
   diskstore: "datastore1"     # datastore of guest
 
 node:
-  hostname:  jumpserver3       # host name
+  hostname:  devhost          # host name
+  cpus: 8
+  memory: 8192
+  disk_type: "thin"

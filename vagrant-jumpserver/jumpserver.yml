@@ -9,17 +9,9 @@
     github_repo: 5laps2go
 
   tasks:
-    - name: install EPEL
-      package:
-        name: epel-release
-        state: present
-    - name: set global LC_LOCALE to UTF-8
-      lineinfile:
-        path: /etc/environment
-        line: 'LC_ALL=en_US.utf-8'
     - name: install packages
       package:
-        name: python,git,gcc,wget,ansible,unzip
+        name: git,jq,gcc,wget,ansible,unzip
         state: present
 
     - name: setup vagrant yum repository
@@ -76,12 +68,12 @@
     - name: download ansible-galaxy role requirements
       copy:
         src: inventories/common/requirements.yml
-        dest: /home/vagrant
+        dest: /tmp
         mode: '0644'
       become: yes
       become_user: vagrant
     - name: install the ansible roles
-      command: ansible-galaxy install -r requirements.yml
+      command: ansible-galaxy install -r /tmp/requirements.yml
       become: yes
       become_user: vagrant
 
@@ -91,19 +83,10 @@
         creates: ./vagrant-clone-templates
       become: yes
       become_user: vagrant
-    - name: prepare ESXIPASSWORD variable
-      ansible.builtin.file:
-        path: /home/vagrant/.bashrc.d
-        state: directory
-        owner: vagrant
-        group: vagrant
-    - name: .vault_pass file
-      ansible.builtin.copy:
-        src: inventories/dev/conf/esxipassword.sh
-        dest: /home/vagrant/.bashrc.d/esxipassword.sh
-        owner: vagrant
-        group: vagrant
-        follow: no
+    - name: prepare ESXI_PASSWD variable
+      lineinfile:
+        dest: /home/vagrant/.bashrc
+        line: 'export ESXI_PASSWD=`cat ~/.vault_pass`'
     - name: install vagrant dummy_box
       command: vagrant box add --name esxi_clone/dummy ~/vagrant-clone-templates/dummybox/dummy.box
       become: yes
@@ -111,11 +94,3 @@
       args:
         creates: /home/vagrant/vagrant-clone-templates/dummybox/dummy.box
 
-#  roles:
-#    - role: geerlingguy.repo-epel
-#   - role: linux-system-roles.selinux
-#   - role: linux-system-roles.firewall
-
-# handlers:
-#   - name: restart nginx
-#     service: name=nginx state=restarted
